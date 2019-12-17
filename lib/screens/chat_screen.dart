@@ -135,6 +135,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         'text': encrypter.encrypt(messageText, iv: iv).base64,
                         'sender': loggedInUser.email,
                         'timestamp': now,
+                        'isImage': false
                       });
                       print(encrypter.encrypt(messageText, iv: iv).base64);
 
@@ -155,7 +156,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         _firestore.collection('messages').add({
                           'text': _uploadedFileURL,
                           'sender': loggedInUser.email,
-                          'isImage': 'true'
+                          'timestamp': now,
+                          'isImage': true
                         });
                       }
                     },
@@ -244,11 +246,12 @@ class _ChatScreenState extends State<ChatScreen> {
 //}
 
 class MessageBubble extends StatelessWidget {
-  MessageBubble({this.sender, this.text, this.isMe});
+  MessageBubble({this.sender, this.text, this.isMe, this.isImage});
 
   final String sender;
   final String text;
   final bool isMe;
+  final bool isImage;
 
   @override
   Widget build(BuildContext context) {
@@ -279,15 +282,16 @@ class MessageBubble extends StatelessWidget {
             elevation: 5.0,
             color: isMe ? Colors.lightBlueAccent : Colors.white,
             child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-              child: Text(
-                text,
-                style: TextStyle(
-                  color: isMe ? Colors.white : Colors.black54,
-                  fontSize: 15.0,
-                ),
-              ),
-            ),
+                padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                child: isImage
+                    ? new Image.network(text)
+                    : Text(
+                        text,
+                        style: TextStyle(
+                          color: isMe ? Colors.white : Colors.black54,
+                          fontSize: 15.0,
+                        ),
+                      )),
           ),
         ],
       ),
