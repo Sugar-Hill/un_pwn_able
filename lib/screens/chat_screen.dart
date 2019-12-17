@@ -91,6 +91,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             messageText, encrypter.randPubKey),
                         'sender': loggedInUser.email,
                         'timestamp': now,
+                        'isImage': false
                       });
                     },
                     child: Text(
@@ -109,7 +110,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         _firestore.collection('messages').add({
                           'text': _uploadedFileURL,
                           'sender': loggedInUser.email,
-                          'isImage': 'true'
+                          'timestamp': now,
+                          'isImage': true
                         });
                       }
                     },
@@ -171,19 +173,17 @@ class MessagesStream extends StatelessWidget {
         for (var message in messages) {
           final messageText = message.data['text'];
           final messageSender = message.data['sender'];
+          final isImage = message.data['isImage'];
 
           final currentUser = loggedInUser.email;
-          try {
-            final messageBubble = MessageBubble(
-              sender: messageSender,
-              text: encrypter.decrypt(messageText, encrypter.randPrivKey),
-              isMe: currentUser == messageSender,
-            );
 
-            messageBubbles.add(messageBubble);
-          } catch (e) {
-            print(e);
-          }
+          final messageBubble = MessageBubble(
+              sender: messageSender,
+              text: messageText,
+              isMe: currentUser == messageSender,
+              isImage: isImage);
+
+          messageBubbles.add(messageBubble);
         }
         return Expanded(
           child: ListView(
@@ -198,11 +198,12 @@ class MessagesStream extends StatelessWidget {
 }
 
 class MessageBubble extends StatelessWidget {
-  MessageBubble({this.sender, this.text, this.isMe});
+  MessageBubble({this.sender, this.text, this.isMe, this.isImage});
 
   final String sender;
   final String text;
   final bool isMe;
+  final bool isImage;
 
   @override
   Widget build(BuildContext context) {
@@ -233,15 +234,16 @@ class MessageBubble extends StatelessWidget {
             elevation: 5.0,
             color: isMe ? Colors.lightBlueAccent : Colors.white,
             child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-              child: Text(
-                text,
-                style: TextStyle(
-                  color: isMe ? Colors.white : Colors.black54,
-                  fontSize: 15.0,
-                ),
-              ),
-            ),
+                padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+                child: isImage
+                    ? new Image.network(text)
+                    : Text(
+                        text,
+                        style: TextStyle(
+                          color: isMe ? Colors.white : Colors.black54,
+                          fontSize: 15.0,
+                        ),
+                      )),
           ),
         ],
       ),
