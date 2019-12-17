@@ -1,3 +1,4 @@
+import 'package:encrypt/encrypt.dart' as e2ee;
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -6,16 +7,15 @@ import 'package:path/path.dart' as Path;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:steel_crypt/steel_crypt.dart';
 
 import '../constants.dart';
 
 final _firestore = Firestore.instance;
 FirebaseUser loggedInUser;
-var encrypter = RsaCrypt();
 
 class ChatScreen extends StatefulWidget {
-  static const String id = 'chat_screen';
+  static const String id = 'chat_screen'; 
+
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
@@ -49,6 +49,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final key = e2ee.Key.fromLength(32);
+    final iv = e2ee.IV.fromLength(16);
+    final encrypter = e2ee.Encrypter(e2ee.AES(key));
     return Scaffold(
       appBar: AppBar(
         leading: null,
@@ -68,7 +71,48 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            MessagesStream(),
+            StreamBuilder<QuerySnapshot>(
+              stream: _firestore
+                  .collection('messages')
+                  .orderBy("timestamp", descending: false)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(
+                    child: CircularProgressIndicator(
+                      backgroundColor: Colors.lightBlueAccent,
+                    ),
+                  );
+                }
+                final messages = snapshot.data.documents.reversed;
+                List<MessageBubble> messageBubbles = [];
+                for (var message in messages) {
+                  final messageText = message.data['text'];
+                  final messageSender = message.data['sender'];
+
+                  final currentUser = loggedInUser.email;
+                  try {
+                    final messageBubble = MessageBubble(
+                      sender: messageSender,
+                      text: encrypter.decrypt64(messageText, iv: iv),
+                      isMe: currentUser == messageSender,
+                    );
+
+                    messageBubbles.add(messageBubble);
+                  } catch (e) {
+                    print(e);
+                  }
+                }
+                return Expanded(
+                  child: ListView(
+                    reverse: true,
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
+                    children: messageBubbles,
+                  ),
+                );
+              },
+            ),
             Container(
               decoration: kMessageContainerDecoration,
               child: Row(
@@ -86,13 +130,15 @@ class _ChatScreenState extends State<ChatScreen> {
                   FlatButton(
                     onPressed: () {
                       messageTextController.clear();
+                      print(messageText);
                       _firestore.collection('messages').add({
-                        'text': encrypter.encrypt(
-                            messageText, encrypter.randPubKey),
+                        'text': encrypter.encrypt(messageText, iv: iv).base64,
                         'sender': loggedInUser.email,
                         'timestamp': now,
                         'isImage': false
                       });
+                      print(encrypter.encrypt(messageText, iv: iv).base64);
+
                     },
                     child: Text(
                       'Send',
@@ -196,6 +242,7 @@ class MessagesStream extends StatelessWidget {
     );
   }
 }
+
 
 class MessageBubble extends StatelessWidget {
   MessageBubble({this.sender, this.text, this.isMe, this.isImage});
