@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:steel_crypt/steel_crypt.dart';
 import 'package:un_pwn_able/componenets/rounded_button.dart';
 import '../constants.dart';
 import 'chat_screen.dart';
@@ -69,6 +70,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 title: 'Register',
                 colour: Colors.blueAccent,
                 onPressed: () async {
+                  HashCrypt("SHA-3/512");
+                  print(email);
+                  print(password);
                   setState(() {
                     showSpinner = true;
                   });
@@ -78,11 +82,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     if (newUser != null) {
                       Navigator.pushNamed(context, ChatScreen.id);
                     }
-
                     setState(() {
                       showSpinner = false;
                     });
                   } catch (e) {
+                    setState(() {
+                      showSpinner = false;
+                    });
                     print(e);
                   }
                 },

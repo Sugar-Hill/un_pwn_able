@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:steel_crypt/steel_crypt.dart';
 
 import '../constants.dart';
 
 final _firestore = Firestore.instance;
 FirebaseUser loggedInUser;
+var encrypter = RsaCrypt();
 
 class ChatScreen extends StatefulWidget {
   static const String id = 'chat_screen';
@@ -18,6 +20,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final _auth = FirebaseAuth.instance;
 
   String messageText;
+  DateTime now = new DateTime.now();
 
   @override
   void initState() {
@@ -68,7 +71,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: TextField(
                       controller: messageTextController,
                       onChanged: (value) {
-                        messageText = value;
+                          messageText = value;
                       },
                       decoration: kMessageTextFieldDecoration,
                     ),
@@ -77,8 +80,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     onPressed: () {
                       messageTextController.clear();
                       _firestore.collection('messages').add({
-                        'text': messageText,
+                        'text': encrypter.encrypt(messageText, encrypter.randPubKey),
                         'sender': loggedInUser.email,
+                        'timestamp': now,
                       });
                     },
                     child: Text(
@@ -100,7 +104,7 @@ class MessagesStream extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: _firestore.collection('messages').snapshots(),
+      stream: _firestore.collection('messages').orderBy("timestamp", descending: false).snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Center(
@@ -119,7 +123,7 @@ class MessagesStream extends StatelessWidget {
 
           final messageBubble = MessageBubble(
             sender: messageSender,
-            text: messageText,
+            text: encrypter.decrypt(messageText, encrypter.randPrivKey),
             isMe: currentUser == messageSender,
           );
 
