@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "814373651788",
+    "firebase_url": "https://un-pwn-able.firebaseio.com",
+    "project_id": "un-pwn-able",
+    "storage_bucket": "un-pwn-able.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:814373651788:android:b83de9d26cef92ddddbbe9",
+        "android_client_info": {
+          "package_name": "com.nci.un_pwn_able"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "814373651788-5met9bvvkp9uro7fuilrdkv0sg2seg9j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCr-FSHFqwWsJqa2XkA8rPJHihYO0ikqIg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "814373651788-5met9bvvkp9uro7fuilrdkv0sg2seg9j.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
