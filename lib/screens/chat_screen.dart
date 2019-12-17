@@ -78,7 +78,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: TextField(
                       controller: messageTextController,
                       onChanged: (value) {
-                          messageText = value;
+                        messageText = value;
                       },
                       decoration: kMessageTextFieldDecoration,
                     ),
@@ -87,7 +87,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     onPressed: () {
                       messageTextController.clear();
                       _firestore.collection('messages').add({
-                        'text': encrypter.encrypt(messageText, encrypter.randPubKey),
+                        'text': encrypter.encrypt(
+                            messageText, encrypter.randPubKey),
                         'sender': loggedInUser.email,
                         'timestamp': now,
                       });
@@ -101,7 +102,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     onPressed: () {
                       messageTextController.clear();
                       chooseFile();
-                      if (_uploadedFileURL.isEmpty) {
+                      if (_image == null) {
                         Fluttertoast.showToast(msg: 'Nothing to send');
                       } else {
                         uploadFile();
@@ -113,7 +114,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       }
                     },
                     child: Text(
-                      'Send',
+                      '📸',
                       style: kSendButtonTextStyle,
                     ),
                   )
@@ -137,7 +138,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Future uploadFile() async {
     StorageReference storageReference = FirebaseStorage.instance
         .ref()
-        .child('messages/${Path.basename(_image.path)}}');
+        .child('images/${Path.basename(_image.path)}}');
     StorageUploadTask uploadTask = storageReference.putFile(_image);
     await uploadTask.onComplete;
     print('File Uploaded');
@@ -153,7 +154,10 @@ class MessagesStream extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: _firestore.collection('messages').orderBy("timestamp", descending: false).snapshots(),
+      stream: _firestore
+          .collection('messages')
+          .orderBy("timestamp", descending: false)
+          .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Center(
@@ -169,14 +173,17 @@ class MessagesStream extends StatelessWidget {
           final messageSender = message.data['sender'];
 
           final currentUser = loggedInUser.email;
+          try {
+            final messageBubble = MessageBubble(
+              sender: messageSender,
+              text: encrypter.decrypt(messageText, encrypter.randPrivKey),
+              isMe: currentUser == messageSender,
+            );
 
-          final messageBubble = MessageBubble(
-            sender: messageSender,
-            text: encrypter.decrypt(messageText, encrypter.randPrivKey),
-            isMe: currentUser == messageSender,
-          );
-
-          messageBubbles.add(messageBubble);
+            messageBubbles.add(messageBubble);
+          } catch (e) {
+            print(e);
+          }
         }
         return Expanded(
           child: ListView(
