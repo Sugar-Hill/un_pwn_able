@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:steel_crypt/steel_crypt.dart';
 import 'package:un_pwn_able/componenets/rounded_button.dart';
 import '../constants.dart';
 import 'chat_screen.dart';
@@ -8,6 +7,7 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class RegistrationScreen extends StatefulWidget {
   static const String id = 'registration_screen';
+
   @override
   _RegistrationScreenState createState() => _RegistrationScreenState();
 }
@@ -49,7 +49,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   email = value;
                 },
                 decoration:
-                kTextFieldDecoration.copyWith(hintText: 'Enter your email'),
+                    kTextFieldDecoration.copyWith(hintText: 'Enter your email'),
               ),
               SizedBox(
                 height: 8.0,
@@ -70,7 +70,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 title: 'Register',
                 colour: Colors.blueAccent,
                 onPressed: () async {
-                  HashCrypt("SHA-3/512");
                   print(email);
                   print(password);
                   setState(() {
