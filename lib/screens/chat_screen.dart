@@ -6,7 +6,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:path/path.dart' as Path;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:un_pwn_able/screens/image_picker_screen.dart';
 
 import '../constants.dart';
 
@@ -14,7 +16,7 @@ final _firestore = Firestore.instance;
 FirebaseUser loggedInUser;
 
 class ChatScreen extends StatefulWidget {
-  static const String id = 'chat_screen'; 
+  static const String id = 'chat_screen';
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -25,14 +27,13 @@ class _ChatScreenState extends State<ChatScreen> {
   final _auth = FirebaseAuth.instance;
 
   String messageText;
-  File _image;
-  String _uploadedFileURL;
   DateTime now = new DateTime.now();
+
+  File _imageFile;
 
   @override
   void initState() {
     super.initState();
-
     getCurrentUser();
   }
 
@@ -63,7 +64,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 Navigator.pop(context);
               }),
         ],
-        title: Text('⚡️Chat'),
+        title: Text('ChatRoom Name'),
         backgroundColor: Colors.lightBlueAccent,
       ),
       body: SafeArea(
@@ -89,6 +90,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 for (var message in messages) {
                   final messageText = message.data['text'];
                   final messageSender = message.data['sender'];
+                  final messageImage = message.data['isImage'];
 
                   final currentUser = loggedInUser.email;
                   try {
@@ -96,6 +98,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       sender: messageSender,
                       text: encrypter.decrypt64(messageText, iv: iv),
                       isMe: currentUser == messageSender,
+                      isImage: messageImage,
                     );
 
                     messageBubbles.add(messageBubble);
@@ -107,7 +110,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: ListView(
                     reverse: true,
                     padding:
-                        EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
+                    EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
                     children: messageBubbles,
                   ),
                 );
@@ -132,13 +135,13 @@ class _ChatScreenState extends State<ChatScreen> {
                       messageTextController.clear();
                       print(messageText);
                       _firestore.collection('messages').add({
-                        'text': encrypter.encrypt(messageText, iv: iv).base64,
+                        'text': encrypter
+                            .encrypt(messageText, iv: iv)
+                            .base64,
                         'sender': loggedInUser.email,
                         'timestamp': now,
-                        'isImage': false
+                        'isImage': false,
                       });
-                      print(encrypter.encrypt(messageText, iv: iv).base64);
-
                     },
                     child: Text(
                       'Send',
@@ -147,19 +150,13 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   FlatButton(
                     onPressed: () {
-                      messageTextController.clear();
-                      chooseFile();
-                      if (_image == null) {
-                        Fluttertoast.showToast(msg: 'Nothing to send');
-                      } else {
-                        uploadFile();
-                        _firestore.collection('messages').add({
-                          'text': _uploadedFileURL,
-                          'sender': loggedInUser.email,
-                          'timestamp': now,
-                          'isImage': true
-                        });
-                      }
+                      Navigator.pushNamed(context, ImagePickerScreen.id);
+//                    _firestore.collection('messages').add({
+//                      'text': encrypter.encrypt(messageText, iv: iv).base64,
+//                      'sender': loggedInUser.email,
+//                      'timestamp': now,
+//                      'isImage': true
+//                    });
                     },
                     child: Text(
                       '📸',
@@ -174,76 +171,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
-
-  Future chooseFile() async {
-    await ImagePicker.pickImage(source: ImageSource.gallery).then((image) {
-      setState(() {
-        _image = image;
-      });
-    });
-  }
-
-  Future uploadFile() async {
-    StorageReference storageReference = FirebaseStorage.instance
-        .ref()
-        .child('images/${Path.basename(_image.path)}}');
-    StorageUploadTask uploadTask = storageReference.putFile(_image);
-    await uploadTask.onComplete;
-    print('File Uploaded');
-    storageReference.getDownloadURL().then((fileURL) {
-      setState(() {
-        _uploadedFileURL = fileURL;
-      });
-    });
-  }
 }
-
-//class MessagesStream extends StatelessWidget {
-//  @override
-//  Widget build(BuildContext context) {
-//    return StreamBuilder<QuerySnapshot>(
-//      stream: _firestore
-//          .collection('messages')
-//          .orderBy("timestamp", descending: false)
-//          .snapshots(),
-//      builder: (context, snapshot) {
-//        if (!snapshot.hasData) {
-//          return Center(
-//            child: CircularProgressIndicator(
-//              backgroundColor: Colors.lightBlueAccent,
-//            ),
-//          );
-//        }
-//        final messages = snapshot.data.documents.reversed;
-//        List<MessageBubble> messageBubbles = [];
-//        for (var message in messages) {
-//          final messageText = message.data['text'];
-//          final messageSender = message.data['sender'];
-//
-//          final currentUser = loggedInUser.email;
-//          try {
-//            final messageBubble = MessageBubble(
-//              sender: messageSender,
-//              text: encrypter.decrypt(messageText, encrypter.randPrivKey),
-//              isMe: currentUser == messageSender,
-//            );
-//
-//            messageBubbles.add(messageBubble);
-//          } catch (e) {
-//            print(e);
-//          }
-//        }
-//        return Expanded(
-//          child: ListView(
-//            reverse: true,
-//            padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
-//            children: messageBubbles,
-//          ),
-//        );
-//      },
-//    );
-//  }
-//}
 
 class MessageBubble extends StatelessWidget {
   MessageBubble({this.sender, this.text, this.isMe, this.isImage});
@@ -259,7 +187,7 @@ class MessageBubble extends StatelessWidget {
       padding: EdgeInsets.all(10.0),
       child: Column(
         crossAxisAlignment:
-            isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: <Widget>[
           Text(
             sender,
@@ -271,30 +199,37 @@ class MessageBubble extends StatelessWidget {
           Material(
             borderRadius: isMe
                 ? BorderRadius.only(
-                    topLeft: Radius.circular(30.0),
-                    bottomLeft: Radius.circular(30.0),
-                    bottomRight: Radius.circular(30.0))
+                topLeft: Radius.circular(30.0),
+                bottomLeft: Radius.circular(30.0),
+                bottomRight: Radius.circular(30.0))
                 : BorderRadius.only(
-                    bottomLeft: Radius.circular(30.0),
-                    bottomRight: Radius.circular(30.0),
-                    topRight: Radius.circular(30.0),
-                  ),
+              bottomLeft: Radius.circular(30.0),
+              bottomRight: Radius.circular(30.0),
+              topRight: Radius.circular(30.0),
+            ),
             elevation: 5.0,
             color: isMe ? Colors.lightBlueAccent : Colors.white,
             child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-                child: isImage
-                    ? new Image.network(text)
-                    : Text(
-                        text,
-                        style: TextStyle(
-                          color: isMe ? Colors.white : Colors.black54,
-                          fontSize: 15.0,
-                        ),
-                      )),
+              padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+              child: checkIsImage(),
+            ),
           ),
         ],
       ),
     );
+  }
+
+  Widget checkIsImage() {
+    if (isImage == true) {
+      return Image.network(text);
+    } else {
+      return Text(
+        text,
+        style: TextStyle(
+          color: isMe ? Colors.white : Colors.black54,
+          fontSize: 15.0,
+        ),
+      );
+  }
   }
 }
