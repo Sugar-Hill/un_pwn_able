@@ -2,11 +2,10 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:un_pwn_able/componenets/rounded_button.dart';
 import 'package:un_pwn_able/screens/registration_screen.dart';
-
 import 'login_screen.dart';
 
 class LandingScreen extends StatefulWidget {
-  static const String id = 'welcome_screen';
+  static const String id = 'landing_screen';
 
   @override
   _LandingScreenState createState() => _LandingScreenState();
@@ -45,22 +44,22 @@ class _LandingScreenState extends State<LandingScreen>
         padding: EdgeInsets.symmetric(horizontal: 24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Row(
               children: <Widget>[
+                TypewriterAnimatedTextKit(
+                  text: ['Don\'t Get'],
+                  textStyle: TextStyle(
+                    fontSize: 45.0,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
                 Hero(
                   tag: 'logo',
                   child: Container(
                     child: Image.asset('images/logo.png'),
-                    height: 60.0,
-                  ),
-                ),
-                TypewriterAnimatedTextKit(
-                  text: ['Flash Chat'],
-                  textStyle: TextStyle(
-                    fontSize: 45.0,
-                    fontWeight: FontWeight.w900,
+                    height: 80.0,
                   ),
                 ),
               ],

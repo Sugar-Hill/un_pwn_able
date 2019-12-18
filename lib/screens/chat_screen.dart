@@ -1,15 +1,8 @@
 import 'package:encrypt/encrypt.dart' as e2ee;
 import 'package:flutter/material.dart';
-import 'dart:io';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:path/path.dart' as Path;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:un_pwn_able/screens/image_picker_screen.dart';
-
 import '../constants.dart';
 
 final _firestore = Firestore.instance;
@@ -28,8 +21,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   String messageText;
   DateTime now = new DateTime.now();
-
-  File _imageFile;
 
   @override
   void initState() {
@@ -110,7 +101,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: ListView(
                     reverse: true,
                     padding:
-                    EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
+                        EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
                     children: messageBubbles,
                   ),
                 );
@@ -135,9 +126,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       messageTextController.clear();
                       print(messageText);
                       _firestore.collection('messages').add({
-                        'text': encrypter
-                            .encrypt(messageText, iv: iv)
-                            .base64,
+                        'text': encrypter.encrypt(messageText, iv: iv).base64,
                         'sender': loggedInUser.email,
                         'timestamp': now,
                         'isImage': false,
@@ -187,7 +176,7 @@ class MessageBubble extends StatelessWidget {
       padding: EdgeInsets.all(10.0),
       child: Column(
         crossAxisAlignment:
-        isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+            isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: <Widget>[
           Text(
             sender,
@@ -199,14 +188,14 @@ class MessageBubble extends StatelessWidget {
           Material(
             borderRadius: isMe
                 ? BorderRadius.only(
-                topLeft: Radius.circular(30.0),
-                bottomLeft: Radius.circular(30.0),
-                bottomRight: Radius.circular(30.0))
+                    topLeft: Radius.circular(30.0),
+                    bottomLeft: Radius.circular(30.0),
+                    bottomRight: Radius.circular(30.0))
                 : BorderRadius.only(
-              bottomLeft: Radius.circular(30.0),
-              bottomRight: Radius.circular(30.0),
-              topRight: Radius.circular(30.0),
-            ),
+                    bottomLeft: Radius.circular(30.0),
+                    bottomRight: Radius.circular(30.0),
+                    topRight: Radius.circular(30.0),
+                  ),
             elevation: 5.0,
             color: isMe ? Colors.lightBlueAccent : Colors.white,
             child: Padding(
@@ -230,6 +219,6 @@ class MessageBubble extends StatelessWidget {
           fontSize: 15.0,
         ),
       );
-  }
+    }
   }
 }

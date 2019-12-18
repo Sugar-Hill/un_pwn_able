@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:un_pwn_able/componenets/rounded_button.dart';
 import '../constants.dart';
 import 'chat_screen.dart';
@@ -7,6 +8,7 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String id = 'login_screen';
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -48,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   email = value;
                 },
                 decoration:
-                kTextFieldDecoration.copyWith(hintText: 'Enter your email'),
+                    kTextFieldDecoration.copyWith(hintText: 'Enter your email'),
               ),
               SizedBox(
                 height: 8.0,
@@ -83,7 +85,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       showSpinner = false;
                     });
                   } catch (e) {
-                    print(e);
+                    setState(() {
+                      showSpinner = false;
+                      Fluttertoast.showToast(
+                          msg: "An error has occured pleased check the fields!",
+                          toastLength: Toast.LENGTH_LONG,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIos: 3,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 16.0);
+                    });
                   }
                 },
               ),
