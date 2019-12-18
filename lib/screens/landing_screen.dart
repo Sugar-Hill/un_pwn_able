@@ -1,6 +1,6 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
-import 'package:un_pwn_able/componenets/rounded_button.dart';
+import 'package:un_pwn_able/componenets/Home_button.dart';
 import 'package:un_pwn_able/screens/registration_screen.dart';
 import 'login_screen.dart';
 
@@ -19,10 +19,8 @@ class _LandingScreenState extends State<LandingScreen>
   @override
   void initState() {
     super.initState();
-
-    controller =
-        AnimationController(duration: Duration(seconds: 1), vsync: this);
-    animation = ColorTween(begin: Colors.blueGrey, end: Colors.white)
+    controller = AnimationController(duration: Duration(seconds: 3), vsync: this);
+    animation = ColorTween(begin: Colors.black, end: Colors.white)
         .animate(controller);
     controller.forward();
     controller.addListener(() {
@@ -39,6 +37,15 @@ class _LandingScreenState extends State<LandingScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Pwned', style: TextStyle(fontFamily: "Raleway", fontSize: 50),),
+        centerTitle: true,
+        flexibleSpace: Image(
+          image: AssetImage('images/background.jfif'),
+          fit: BoxFit.cover,
+        ),
+        backgroundColor: Colors.transparent,
+      ),
       backgroundColor: animation.value,
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 24.0),
@@ -50,8 +57,11 @@ class _LandingScreenState extends State<LandingScreen>
               children: <Widget>[
                 TypewriterAnimatedTextKit(
                   text: ['Don\'t Get'],
+                  textAlign: TextAlign.center,
                   textStyle: TextStyle(
-                    fontSize: 45.0,
+                    fontFamily: "Raleway",
+                    color: Colors.green,
+                    fontSize: 50.0,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -59,24 +69,24 @@ class _LandingScreenState extends State<LandingScreen>
                   tag: 'logo',
                   child: Container(
                     child: Image.asset('images/logo.png'),
-                    height: 80.0,
+                    height: 100.0,
                   ),
                 ),
               ],
             ),
             SizedBox(
-              height: 48.0,
+              height: 40.0,
             ),
-            RoundedButton(
-              title: 'Log In',
-              colour: Colors.lightBlueAccent,
+            HomeButton(
+              name: 'Log In',
+              colour: Colors.green,
               onPressed: () {
                 Navigator.pushNamed(context, LoginScreen.id);
               },
             ),
-            RoundedButton(
-              title: 'Register',
-              colour: Colors.blueAccent,
+            HomeButton(
+              name: 'Register',
+              colour: Colors.red,
               onPressed: () {
                 Navigator.pushNamed(context, RegistrationScreen.id);
               },

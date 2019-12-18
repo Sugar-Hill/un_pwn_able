@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:un_pwn_able/componenets/rounded_button.dart';
+import 'package:un_pwn_able/componenets/Home_button.dart';
 import '../constants.dart';
 import 'chat_screen.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -17,7 +17,6 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-  //Creating global form key
   var _formKey = GlobalKey<FormState>();
 
   final _auth = FirebaseAuth.instance;
@@ -30,8 +29,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     final form = _formKey.currentState;
     if (form.validate()) {
       form.save();
-      // Email & password matched our validation rules
-      // and are saved to _email and _password fields.
       _registrationCommand();
     }
   }
@@ -58,9 +55,20 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.white,
+        appBar: AppBar(
+          title: Text(
+            'Pwned',
+            style: TextStyle(fontFamily: "Raleway", fontSize: 50),
+          ),
+          centerTitle: true,
+          flexibleSpace: Image(
+            image: AssetImage('images/background.jfif'),
+            fit: BoxFit.cover,
+          ),
+          backgroundColor: Colors.transparent,
+        ),
+//        backgroundColor: Colors.black,
         body: Form(
-          //Uing this key we can retreive the current status of our form
           key: _formKey,
           child: ModalProgressHUD(
             inAsyncCall: showSpinner,
@@ -74,13 +82,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     child: Hero(
                       tag: 'logo',
                       child: Container(
-                        height: 200.0,
+                        height: 300.0,
                         child: Image.asset('images/logo.png'),
                       ),
                     ),
                   ),
                   SizedBox(
-                    height: 48.0,
+                    height: 30.0,
                   ),
                   //TextFormField enables us to apply the validation layer on our text field
                   TextFormField(
@@ -92,7 +100,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           'Invalid email address, please use the form - test@example.com')
                     ]),
                     onSaved: (value) => _email = value,
-                    decoration: kTextFieldDecoration.copyWith(
+                    decoration: textFieldDecoration.copyWith(
                         hintText: 'Enter your email'),
                   ),
                   SizedBox(
@@ -117,7 +125,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       Validators.patternString('(?=.*[@#%&])',
                           'Your password must contain at least 1 special character - [@, #, % or &]')
                     ]),
-                    decoration: kTextFieldDecoration.copyWith(
+                    decoration: textFieldDecoration.copyWith(
                         hintText: 'Enter your password'),
                   ),
                   SizedBox(
@@ -135,17 +143,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       }
                     },
                     onSaved: (value) => _password = value,
-                    decoration: kTextFieldDecoration.copyWith(
+                    decoration: textFieldDecoration.copyWith(
                         hintText: 'Confirm password'),
                   ),
                   SizedBox(
                     height: 24.0,
                   ),
-                  RoundedButton(
-                      title: 'Register',
-                      colour: Colors.blueAccent,
-                      onPressed: _submitCommand
-                  ),
+                  HomeButton(
+                      name: 'Register',
+                      colour: Colors.red,
+                      onPressed: _submitCommand),
                 ],
               ),
             ),

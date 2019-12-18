@@ -2,6 +2,7 @@ import 'package:encrypt/encrypt.dart' as e2ee;
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:un_pwn_able/screens/image_picker_screen.dart';
 import '../constants.dart';
 
@@ -35,7 +36,14 @@ class _ChatScreenState extends State<ChatScreen> {
         loggedInUser = user;
       }
     } catch (e) {
-      print(e);
+      Fluttertoast.showToast(
+          msg: "You must be logged in to access this page!",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIos: 3,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
     }
   }
 
@@ -44,9 +52,9 @@ class _ChatScreenState extends State<ChatScreen> {
     final key = e2ee.Key.fromLength(32);
     final iv = e2ee.IV.fromLength(16);
     final encrypter = e2ee.Encrypter(e2ee.AES(key));
+
     return Scaffold(
       appBar: AppBar(
-        leading: null,
         actions: <Widget>[
           IconButton(
               icon: Icon(Icons.close),
@@ -55,8 +63,16 @@ class _ChatScreenState extends State<ChatScreen> {
                 Navigator.pop(context);
               }),
         ],
-        title: Text('ChatRoom Name'),
-        backgroundColor: Colors.lightBlueAccent,
+        title: Text(
+          'Pwned Chat',
+          style: TextStyle(fontFamily: "Raleway", fontSize: 50),
+        ),
+        centerTitle: true,
+        flexibleSpace: Image(
+          image: AssetImage('images/background.jfif'),
+          fit: BoxFit.cover,
+        ),
+        backgroundColor: Colors.transparent,
       ),
       body: SafeArea(
         child: Column(
@@ -82,7 +98,6 @@ class _ChatScreenState extends State<ChatScreen> {
                   final messageText = message.data['text'];
                   final messageSender = message.data['sender'];
                   final messageImage = message.data['isImage'];
-
                   final currentUser = loggedInUser.email;
                   try {
                     final messageBubble = MessageBubble(
@@ -94,7 +109,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
                     messageBubbles.add(messageBubble);
                   } catch (e) {
-                    print(e);
+                    Fluttertoast.showToast(
+                        msg: "An error has occured",
+                        toastLength: Toast.LENGTH_LONG,
+                        gravity: ToastGravity.CENTER,
+                        timeInSecForIos: 3,
+                        backgroundColor: Colors.red,
+                        textColor: Colors.white,
+                        fontSize: 16.0);
                   }
                 }
                 return Expanded(
@@ -108,7 +130,7 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
             Container(
-              decoration: kMessageContainerDecoration,
+              decoration: messageContainerDecoration,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
@@ -118,13 +140,12 @@ class _ChatScreenState extends State<ChatScreen> {
                       onChanged: (value) {
                         messageText = value;
                       },
-                      decoration: kMessageTextFieldDecoration,
+                      decoration: messageTextFieldDecoration,
                     ),
                   ),
                   FlatButton(
                     onPressed: () {
                       messageTextController.clear();
-                      print(messageText);
                       _firestore.collection('messages').add({
                         'text': encrypter.encrypt(messageText, iv: iv).base64,
                         'sender': loggedInUser.email,
@@ -134,22 +155,16 @@ class _ChatScreenState extends State<ChatScreen> {
                     },
                     child: Text(
                       'Send',
-                      style: kSendButtonTextStyle,
+                      style: sendButtonTextStyle,
                     ),
                   ),
                   FlatButton(
                     onPressed: () {
                       Navigator.pushNamed(context, ImagePickerScreen.id);
-//                    _firestore.collection('messages').add({
-//                      'text': encrypter.encrypt(messageText, iv: iv).base64,
-//                      'sender': loggedInUser.email,
-//                      'timestamp': now,
-//                      'isImage': true
-//                    });
                     },
                     child: Text(
                       '📸',
-                      style: kSendButtonTextStyle,
+                      style: sendButtonTextStyle,
                     ),
                   )
                 ],
@@ -182,7 +197,7 @@ class MessageBubble extends StatelessWidget {
             sender,
             style: TextStyle(
               fontSize: 12.0,
-              color: Colors.black54,
+              color: Colors.white,
             ),
           ),
           Material(
@@ -197,7 +212,7 @@ class MessageBubble extends StatelessWidget {
                     topRight: Radius.circular(30.0),
                   ),
             elevation: 5.0,
-            color: isMe ? Colors.lightBlueAccent : Colors.white,
+            color: isMe ? Colors.white : Colors.green,
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
               child: checkIsImage(),
@@ -215,7 +230,7 @@ class MessageBubble extends StatelessWidget {
       return Text(
         text,
         style: TextStyle(
-          color: isMe ? Colors.white : Colors.black54,
+          color: isMe ? Colors.black : Colors.white,
           fontSize: 15.0,
         ),
       );
