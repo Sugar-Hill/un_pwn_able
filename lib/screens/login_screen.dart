@@ -5,6 +5,7 @@ import 'package:un_pwn_able/componenets/Home_button.dart';
 import '../constants.dart';
 import 'chat_screen.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:wc_form_validators/wc_form_validators.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String id = 'login_screen';
@@ -14,10 +15,30 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  var _formKey = GlobalKey<FormState>();
   bool showSpinner = false;
   final _auth = FirebaseAuth.instance;
-  String email;
-  String password;
+  String _email;
+  String _password;
+
+  Future<void> _loginCommand() async {
+    if (_formKey.currentState.validate()) {
+      _formKey.currentState.save();
+      showSpinner = true;
+      try {
+        final user = await _auth.signInWithEmailAndPassword(
+            email: _email, password: _password);
+        if (user != null) {
+          Navigator.pushNamed(context, ChatScreen.id);
+        }
+        setState(() {
+          showSpinner = false;
+        });
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,83 +56,65 @@ class _LoginScreenState extends State<LoginScreen> {
         backgroundColor: Colors.transparent,
       ),
       backgroundColor: Colors.white,
-      body: ModalProgressHUD(
-        inAsyncCall: showSpinner,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Flexible(
-                child: Hero(
-                  tag: 'logo',
-                  child: Container(
-                    height: 300.0,
-                    child: Image.asset('images/logo.png'),
+      body: Form(
+        key: _formKey,
+        child: ModalProgressHUD(
+          inAsyncCall: showSpinner,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Flexible(
+                  child: Hero(
+                    tag: 'logo',
+                    child: Container(
+                      height: 200.0,
+                      child: Image.asset('images/logo.png'),
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(
-                height: 48.0,
-              ),
-              TextField(
-                keyboardType: TextInputType.emailAddress,
-                textAlign: TextAlign.center,
-                onChanged: (value) {
-                  email = value;
-                },
-                decoration:
-                    textFieldDecoration.copyWith(hintText: 'Enter your email'),
-              ),
-              SizedBox(
-                height: 8.0,
-              ),
-              TextField(
-                obscureText: true,
-                textAlign: TextAlign.center,
-                onChanged: (value) {
-                  password = value;
-                },
-                decoration: textFieldDecoration.copyWith(
-                    hintText: 'Enter your password'),
-              ),
-              SizedBox(
-                height: 24.0,
-              ),
-              HomeButton(
-                name: 'Log In',
-                colour: Colors.red,
-                onPressed: () async {
-                  setState(() {
-                    showSpinner = true;
-                  });
-                  try {
-                    final user = await _auth.signInWithEmailAndPassword(
-                        email: email, password: password);
-                    if (user != null) {
-                      Navigator.pushNamed(context, ChatScreen.id);
+                SizedBox(
+                  height: 48.0,
+                ),
+                TextFormField(
+                  keyboardType: TextInputType.emailAddress,
+                  textAlign: TextAlign.center,
+                  validator: Validators.compose([
+                    Validators.required('Please enter an email address'),
+                    Validators.email('Invalid email address')
+                  ]),
+                  onSaved: (value) => _email = value,
+                  decoration: kTextFieldDecoration.copyWith(
+                      hintText: 'Enter your email'),
+                ),
+                SizedBox(
+                  height: 8.0,
+                ),
+                TextFormField(
+                  obscureText: true,
+                  textAlign: TextAlign.center,
+                  // ignore: missing_return
+                  validator: (value) {
+                    if(value.isEmpty) {
+                      return 'Please provide a password';
                     }
-
-                    setState(() {
-                      showSpinner = false;
-                    });
-                  } catch (e) {
-                    setState(() {
-                      showSpinner = false;
-                      Fluttertoast.showToast(
-                          msg: "An error has occured pleased check the fields!",
-                          toastLength: Toast.LENGTH_LONG,
-                          gravity: ToastGravity.CENTER,
-                          timeInSecForIos: 3,
-                          backgroundColor: Colors.red,
-                          textColor: Colors.white,
-                          fontSize: 16.0);
-                    });
-                  }
-                },
-              ),
-            ],
+                  },
+                  onSaved: (value) => _password = value,
+                  decoration: kTextFieldDecoration.copyWith(
+                      hintText: 'Enter your password'),
+                ),
+                SizedBox(
+                  height: 24.0,
+                ),
+                RoundedButton(
+                    title: 'Log In',
+                    colour: Colors.lightBlueAccent,
+                    onPressed: _loginCommand
+                ),
+              ],
+            ),
           ),
         ),
       ),

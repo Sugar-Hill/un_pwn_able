@@ -7,6 +7,8 @@ import 'chat_screen.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:wc_form_validators/wc_form_validators.dart';
 
+import 'login_screen.dart';
+
 class RegistrationScreen extends StatefulWidget {
   static const String id = 'registration_screen';
 
@@ -45,17 +47,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           showSpinner = false;
         });
       } catch (e) {
-        setState(() {
-          showSpinner = false;
-          Fluttertoast.showToast(
-              msg: "An error has occured pleased check the fields!",
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.CENTER,
-              timeInSecForIos: 3,
-              backgroundColor: Colors.red,
-              textColor: Colors.white,
-              fontSize: 16.0);
-        });
+        print(e.message);
       }
     }
   }
@@ -102,8 +94,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   TextFormField(
                     keyboardType: TextInputType.emailAddress,
                     textAlign: TextAlign.center,
-                    validator: Validators.email(
-                        'Please enter a valid email address - test@example.com'),
+                    validator: Validators.compose([
+                      Validators.required('Please enter an email address'),
+                      Validators.email(
+                          'Invalid email address, please use the form - test@example.com')
+                    ]),
                     onSaved: (value) => _email = value,
                     decoration: textFieldDecoration.copyWith(
                         hintText: 'Enter your email'),
