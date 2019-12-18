@@ -4,20 +4,40 @@ import 'package:un_pwn_able/componenets/rounded_button.dart';
 import '../constants.dart';
 import 'chat_screen.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:wc_form_validators/wc_form_validators.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String id = 'login_screen';
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
   var _formKey = GlobalKey<FormState>();
   bool showSpinner = false;
   final _auth = FirebaseAuth.instance;
   String _email;
   String _password;
+
+  Future<void> _loginCommand() async {
+    if (_formKey.currentState.validate()) {
+      _formKey.currentState.save();
+      showSpinner = true;
+      try {
+        final user = await _auth.signInWithEmailAndPassword(
+            email: _email, password: _password);
+        if (user != null) {
+          Navigator.pushNamed(context, ChatScreen.id);
+        }
+        setState(() {
+          showSpinner = false;
+        });
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,11 +68,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 TextFormField(
                   keyboardType: TextInputType.emailAddress,
                   textAlign: TextAlign.center,
-                  onChanged: (value) {
-                    _email = value;
-                  },
-                  decoration:
-                  kTextFieldDecoration.copyWith(hintText: 'Enter your email'),
+                  validator: Validators.compose([
+                    Validators.required('Please enter an email address'),
+                    Validators.email('Invalid email address')
+                  ]),
+                  onSaved: (value) => _email = value,
+                  decoration: kTextFieldDecoration.copyWith(
+                      hintText: 'Enter your email'),
                 ),
                 SizedBox(
                   height: 8.0,
@@ -60,9 +82,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 TextFormField(
                   obscureText: true,
                   textAlign: TextAlign.center,
-                  onChanged: (value) {
-                    _password = value;
+                  // ignore: missing_return
+                  validator: (value) {
+                    if(value.isEmpty) {
+                      return 'Please provide a password';
+                    }
                   },
+                  onSaved: (value) => _password = value,
                   decoration: kTextFieldDecoration.copyWith(
                       hintText: 'Enter your password'),
                 ),
@@ -70,26 +96,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   height: 24.0,
                 ),
                 RoundedButton(
-                  title: 'Log In',
-                  colour: Colors.lightBlueAccent,
-                  onPressed: () async {
-                    setState(() {
-                      showSpinner = true;
-                    });
-                    try {
-                      final user = await _auth.signInWithEmailAndPassword(
-                          email: _email, password: _password);
-                      if (user != null) {
-                        Navigator.pushNamed(context, ChatScreen.id);
-                      }
-
-                      setState(() {
-                        showSpinner = false;
-                      });
-                    } catch (e) {
-                      print(e);
-                    }
-                  },
+                    title: 'Log In',
+                    colour: Colors.lightBlueAccent,
+                    onPressed: _loginCommand
                 ),
               ],
             ),
