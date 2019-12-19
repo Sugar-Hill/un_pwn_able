@@ -86,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Validators.email('Invalid email address')
                   ]),
                   onSaved: (value) => _email = value,
-                  decoration: kTextFieldDecoration.copyWith(
+                  decoration: textFieldDecoration.copyWith(
                       hintText: 'Enter your email'),
                 ),
                 SizedBox(
@@ -102,14 +102,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     }
                   },
                   onSaved: (value) => _password = value,
-                  decoration: kTextFieldDecoration.copyWith(
+                  decoration: textFieldDecoration.copyWith(
                       hintText: 'Enter your password'),
                 ),
                 SizedBox(
                   height: 24.0,
                 ),
-                RoundedButton(
-                    title: 'Log In',
+                HomeButton(
+                    name: 'Log In',
                     colour: Colors.lightBlueAccent,
                     onPressed: _loginCommand
                 ),

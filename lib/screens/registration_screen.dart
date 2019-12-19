@@ -6,7 +6,6 @@ import '../constants.dart';
 import 'chat_screen.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:wc_form_validators/wc_form_validators.dart';
-
 import 'login_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
@@ -67,7 +66,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           ),
           backgroundColor: Colors.transparent,
         ),
-//        backgroundColor: Colors.black,
+        // backgroundColor: Colors.black,
         body: Form(
           key: _formKey,
           child: ModalProgressHUD(
@@ -152,7 +151,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   HomeButton(
                       name: 'Register',
                       colour: Colors.red,
-                      onPressed: _submitCommand),
+                      onPressed: _submitCommand
+                  ),
                 ],
               ),
             ),
