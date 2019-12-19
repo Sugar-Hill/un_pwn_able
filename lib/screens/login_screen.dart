@@ -7,6 +7,16 @@ import 'chat_screen.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:wc_form_validators/wc_form_validators.dart';
 
+
+class PasswordFieldValidator{
+  static String validatePassword(String value){
+    if(value.isEmpty) {
+      return 'Please provide a password';
+    }
+    return null;
+  }
+}
+
 class LoginScreen extends StatefulWidget {
   static const String id = 'login_screen';
 
@@ -35,7 +45,14 @@ class _LoginScreenState extends State<LoginScreen> {
           showSpinner = false;
         });
       } catch (e) {
-        print(e);
+        Fluttertoast.showToast(
+            msg: "An error has occured please check your credentials!",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIos: 3,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0);
       }
     }
   }
@@ -96,11 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   obscureText: true,
                   textAlign: TextAlign.center,
                   // ignore: missing_return
-                  validator: (value) {
-                    if(value.isEmpty) {
-                      return 'Please provide a password';
-                    }
-                  },
+                  validator: (value) => PasswordFieldValidator.validatePassword(value),
                   onSaved: (value) => _password = value,
                   decoration: textFieldDecoration.copyWith(
                       hintText: 'Enter your password'),
