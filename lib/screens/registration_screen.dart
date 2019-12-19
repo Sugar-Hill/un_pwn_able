@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:un_pwn_able/componenets/Home_button.dart';
 import '../constants.dart';
@@ -45,9 +46,23 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         setState(() {
           showSpinner = false;
         });
-      } catch (e) {
+      }on PlatformException catch(e){
         setState(() {
           showSpinner = false;
+          Fluttertoast.showToast(
+              msg: "This email is in use choose another one!",
+              toastLength: Toast.LENGTH_LONG,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIos: 3,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16.0);
+        });
+      }
+      catch (e) {
+        setState(() {
+          showSpinner = false;
+          print(e);
           Fluttertoast.showToast(
               msg: "An error has occured pleased check the fields!",
               toastLength: Toast.LENGTH_LONG,

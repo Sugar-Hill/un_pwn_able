@@ -110,7 +110,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     messageBubbles.add(messageBubble);
                   } catch (e) {
                     Fluttertoast.showToast(
-                        msg: "An error has occured",
+                        msg: "An error has occured!",
                         toastLength: Toast.LENGTH_LONG,
                         gravity: ToastGravity.CENTER,
                         timeInSecForIos: 3,

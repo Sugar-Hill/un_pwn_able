@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:un_pwn_able/componenets/Home_button.dart';
 import '../constants.dart';
@@ -123,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 HomeButton(
                     name: 'Log In',
-                    colour: Colors.lightBlueAccent,
+                    colour: Colors.green,
                     onPressed: _loginCommand
                 ),
               ],

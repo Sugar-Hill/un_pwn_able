@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:un_pwn_able/screens/login_screen.dart';
 
 final _firestore = Firestore.instance;
 FirebaseUser loggedInUser;
@@ -43,7 +44,18 @@ class _ImagePickerScreenState extends State<ImagePickerScreen> {
     final iv = e2ee.IV.fromLength(16);
     final encrypter = e2ee.Encrypter(e2ee.AES(key));
     String filePath = 'images/${DateTime.now()}';
-    await _storage.ref().child(filePath).putFile(_imageFile).onComplete;
+    try{
+      await _storage.ref().child(filePath).putFile(_imageFile).onComplete;
+    }catch(e){
+      Fluttertoast.showToast(
+          msg: "An error has occured!",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIos: 3,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
     if (_imageFile == null) {
       Fluttertoast.showToast(
           msg: "Please upload a file!",
@@ -56,7 +68,6 @@ class _ImagePickerScreenState extends State<ImagePickerScreen> {
     } else {
       _storage.ref().child(filePath).getDownloadURL().then((fileURL) {
         _imageFileUrl = fileURL;
-        print(_imageFileUrl);
         _firestore.collection('messages').add({
           'text': encrypter.encrypt(_imageFileUrl, iv: iv).base64,
           'sender': loggedInUser.email,
@@ -88,6 +99,7 @@ class _ImagePickerScreenState extends State<ImagePickerScreen> {
           backgroundColor: Colors.red,
           textColor: Colors.white,
           fontSize: 16.0);
+      Navigator.popAndPushNamed(context, LoginScreen.id);
     }
   }
 
@@ -177,7 +189,7 @@ class _ImagePickerScreenState extends State<ImagePickerScreen> {
                   child: Text("📤", style: TextStyle(fontSize: 30)),
                 ),
                 onPressed: () {
-                  _upload();
+                  _upload(loggedInUser);
                   Navigator.pop(context);
                 },
               ),
