@@ -189,7 +189,7 @@ class _ImagePickerScreenState extends State<ImagePickerScreen> {
                   child: Text("📤", style: TextStyle(fontSize: 30)),
                 ),
                 onPressed: () {
-                  _upload(loggedInUser);
+                  _upload();
                   Navigator.pop(context);
                 },
               ),
