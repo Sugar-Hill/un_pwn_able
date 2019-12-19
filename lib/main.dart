@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:un_pwn_able/screens/chat_screen.dart';
+import 'package:un_pwn_able/screens/image_picker_screen.dart';
 import 'package:un_pwn_able/screens/landing_screen.dart';
-import 'package:steel_crypt/steel_crypt.dart';
 import 'package:un_pwn_able/screens/login_screen.dart';
 import 'package:un_pwn_able/screens/registration_screen.dart';
 
@@ -17,6 +17,7 @@ class MyApp extends StatelessWidget {
         LoginScreen.id: (context) => LoginScreen(),
         RegistrationScreen.id: (context) => RegistrationScreen(),
         ChatScreen.id: (context) => ChatScreen(),
+        ImagePickerScreen.id: (context) => ImagePickerScreen(),
       },
     );
   }
